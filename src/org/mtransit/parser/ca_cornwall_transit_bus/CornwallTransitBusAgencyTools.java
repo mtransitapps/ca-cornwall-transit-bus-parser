@@ -214,7 +214,6 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 				.addTripSort(MDirectionType.SOUTH.intValue(), //
 						Arrays.asList(new String[] { "645", "601", "611", "622" })) //
 				.compileBothTripSort());
-
 		map2.put(2001l, new RouteTripSpec(2001l, // 2-CUMBERLAND
 				MDirectionType.NORTH.intValue(), MTrip.HEADSIGN_TYPE_DIRECTION, MDirectionType.NORTH.getId(), //
 				MDirectionType.SOUTH.intValue(), MTrip.HEADSIGN_TYPE_DIRECTION, MDirectionType.SOUTH.getId()) //
@@ -223,16 +222,22 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 				.addTripSort(MDirectionType.SOUTH.intValue(), //
 						Arrays.asList(new String[] { "301", "311", "320", "321" })) //
 				.compileBothTripSort());
-		map2.put(2002l, new RouteTripSpec(2002l, // 2-SUNRISE
+		map2.put(2002L, new RouteTripSpec(2002L, // 2-SUNRISE
 				MDirectionType.EAST.intValue(), MTrip.HEADSIGN_TYPE_DIRECTION, MDirectionType.EAST.getId(), //
 				MDirectionType.WEST.intValue(), MTrip.HEADSIGN_TYPE_DIRECTION, MDirectionType.WEST.getId()) //
 				.addTripSort(MDirectionType.EAST.intValue(), //
 						Arrays.asList(new String[] { //
-						"729", "737", "701" //
+						"729", // Pitt & 2nd
+								"737", // ++ 2nd & Guy
+								"6141", // Leitch & Anderson
 						})) //
 				.addTripSort(MDirectionType.WEST.intValue(), //
 						Arrays.asList(new String[] { //
-						"701", "708", "718", "728", "729" //
+						"6141", // Leitch & Anderson
+								"708", // ++ Anderson & Shearer
+								"718", // ++ 2nd & Eastcourt Mall
+								"728", // 2nd & Sydney
+								"729", // Pitt & 2nd
 						})) //
 				.compileBothTripSort());
 		map2.put(3001l, new RouteTripSpec(3001l, // 3-BROOKDALE
