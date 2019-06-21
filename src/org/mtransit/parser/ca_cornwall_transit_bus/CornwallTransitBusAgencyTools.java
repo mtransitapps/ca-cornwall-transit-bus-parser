@@ -114,6 +114,12 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 				}
 			} else if (gRoute.getRouteLongName().startsWith("61")) {
 				return 61L;
+			} else if (gRoute.getRouteLongName().startsWith("71")) {
+				return 71L;
+			} else if (gRoute.getRouteLongName().startsWith("88")) {
+				return 88L;
+			} else if (gRoute.getRouteLongName().startsWith("99")) {
+				return 99L;
 			}
 			System.out.printf("\nUnexpected route ID for %s!\n", gRoute);
 			System.exit(-1);
@@ -148,6 +154,12 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 			}
 		} else if (gRoute.getRouteLongName().startsWith("61")) {
 			return "61 CS";
+		} else if (gRoute.getRouteLongName().startsWith("71")) {
+			return "71 EX";
+		} else if (gRoute.getRouteLongName().startsWith("88")) {
+			return "88 CA";
+		} else if (gRoute.getRouteLongName().startsWith("99")) {
+			return "99 BP";
 		}
 		System.out.printf("\nUnexpected route short name %s!\n", gRoute);
 		System.exit(-1);
@@ -342,6 +354,89 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 								"6133", //
 								"6137", //
 								"6101", //
+						})) //
+				.compileBothTripSort());
+		map2.put(71L, new RouteTripSpec(71L, //
+				MDirectionType.NORTH.intValue(), MTrip.HEADSIGN_TYPE_DIRECTION, MDirectionType.NORTH.getId(), // LOOP
+				MDirectionType.SOUTH.intValue(), MTrip.HEADSIGN_TYPE_DIRECTION, MDirectionType.SOUTH.getId()) // LOOP
+				.addTripSort(MDirectionType.NORTH.intValue(), //
+						Arrays.asList(new String[] { //
+						"125", // <> xx Pitt & Second
+								"219", // !=
+								"329", // !=
+								"241", // xx Walmart
+								"225", // != Brookdale Centre
+								"201", // Tollgate & Brookdale #NORTH
+								"207", // !=
+								"241", // xx Walmart
+								"234", // !=
+								"217", // !=
+								"125", // <> xx Pitt & Second
+						})) //
+				.addTripSort(MDirectionType.SOUTH.intValue(), //
+						Arrays.asList(new String[] { //
+						"125", // <> xx Pitt & Second
+								"126", // !=
+								"527", // !=
+								"528", // xx Saint Lawrence College
+								"529", // !=
+								"534", // Montreal Rd. & Anthony #SOUTH
+								"718", // Eastcourt Mall
+								"508", // !=
+								"528", // xx Saint Lawrence College
+								"509", // !=
+								"517", // !=
+								"125", // <> xx Pitt & Second
+						})) //
+				.compileBothTripSort());
+		map2.put(99L, new RouteTripSpec(99L, //
+				MDirectionType.NORTH.intValue(), MTrip.HEADSIGN_TYPE_DIRECTION, MDirectionType.NORTH.getId(), // LOOP
+				MDirectionType.SOUTH.intValue(), MTrip.HEADSIGN_TYPE_DIRECTION, MDirectionType.SOUTH.getId()) // LOOP
+				.addTripSort(MDirectionType.NORTH.intValue(), //
+						Arrays.asList(new String[] { //
+						"6134", // Second & Seymour <=
+								"240", //
+								"9900", // xx Pitt & Second (Industrial Stop) <=
+								"733", // !=
+								"734", // <>
+								"9909", // <> ==
+								"9919", // <> !=
+								"9914", // <>
+								"9916", // <> !=
+								"9918", // <> !=
+								"9920", // <> ==
+								"9917", // !=
+								"9902", // !=
+								"9910", // ==
+								"9912", // xx
+								"9913", // xx
+								"9905", // !=
+								"9903", // ==
+								"9912", // xx
+								"9913", // xx
+								"716", // ==
+								"727", // !=
+								"418", // != <>
+								"9900", // xx Pitt & Second (Industrial Stop) =>
+						})) //
+				.addTripSort(MDirectionType.SOUTH.intValue(), //
+						Arrays.asList(new String[] { //
+						"6134", // Second & Seymour <=
+								"240", // ==
+								"323", // !=
+								"124", // !=
+								"9900", // xx Pitt & Second (Industrial Stop)
+								"418", // != <>
+								"624", // !=
+								"628", // !=
+								"734", // <>
+								"9909", // <> ==
+								"9919", // !=
+								"9914", // <>
+								"9918", // <> !=
+								"9916", // <> !=
+								"9920", // <> !=
+								"9900", // xx Pitt & Second (Industrial Stop) =>
 						})) //
 				.compileBothTripSort());
 		ALL_ROUTE_TRIPS2 = map2;
