@@ -295,6 +295,9 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 		tripHeadsign = STARTS_WITH_CORNWALL.matcher(tripHeadsign).replaceAll(StringUtils.EMPTY);
 		tripHeadsign = COMMUNITY_SERVICE_.matcher(tripHeadsign).replaceAll(COMMUNITY_SERVICE_REPLACEMENT);
 		tripHeadsign = MCCONNELL.matcher(tripHeadsign).replaceAll(MCCONNELL_REPLACEMENT);
+		tripHeadsign = CleanUtils.CLEAN_AND.matcher(tripHeadsign).replaceAll(CleanUtils.CLEAN_AND_REPLACEMENT);
+		tripHeadsign = CleanUtils.CLEAN_AT.matcher(tripHeadsign).replaceAll(CleanUtils.CLEAN_AT_REPLACEMENT);
+		tripHeadsign = CleanUtils.keepToAndRemoveVia(tripHeadsign);
 		tripHeadsign = CleanUtils.removePoints(tripHeadsign);
 		tripHeadsign = CleanUtils.cleanNumbers(tripHeadsign);
 		tripHeadsign = CleanUtils.cleanStreetTypes(tripHeadsign);
