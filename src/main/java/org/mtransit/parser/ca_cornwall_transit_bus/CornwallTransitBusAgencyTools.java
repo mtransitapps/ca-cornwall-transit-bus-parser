@@ -20,6 +20,7 @@ import org.mtransit.parser.mt.data.MRoute;
 import org.mtransit.parser.mt.data.MTrip;
 import org.mtransit.parser.mt.data.MTripStop;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -306,6 +307,16 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public boolean mergeHeadsign(MTrip mTrip, MTrip mTripToMerge) {
+		List<String> headsignsValues = Arrays.asList(mTrip.getHeadsignValue(), mTripToMerge.getHeadsignValue());
+		if (mTrip.getRouteId() == 88L) {
+			if (Arrays.asList( //
+					"Express", //
+					"Canada Day" //
+			).containsAll(headsignsValues)) {
+				mTrip.setHeadsignString("Canada Day", mTrip.getHeadsignId());
+				return true;
+			}
+		}
 		MTLog.logFatal("Unexpected trips to merge %s VS %s!", mTrip, mTripToMerge);
 		return false;
 	}
