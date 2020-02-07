@@ -310,6 +310,7 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 		List<String> headsignsValues = Arrays.asList(mTrip.getHeadsignValue(), mTripToMerge.getHeadsignValue());
 		if (mTrip.getRouteId() == 88L) {
 			if (Arrays.asList( //
+					"CS", //
 					"Express", //
 					"Canada Day" //
 			).containsAll(headsignsValues)) {
