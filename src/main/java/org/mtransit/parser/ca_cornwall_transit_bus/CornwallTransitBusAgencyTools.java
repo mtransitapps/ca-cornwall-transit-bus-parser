@@ -98,22 +98,36 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 					} else if ("PITT".equals(gRoute.getRouteId())) {
 						return 1_002L;
 					}
+					break;
 				case 2:
 					if ("CUMBERLAND".equals(gRoute.getRouteId())) {
 						return 2_001L;
 					} else if ("SUNRISE".equals(gRoute.getRouteId())) {
 						return 2_002L;
 					}
+					break;
 				case 3:
 					if ("BROOKDALE".equals(gRoute.getRouteId())) {
 						return 3_001L;
 					} else if ("MONTREAL".equals(gRoute.getRouteId())) {
 						return 3_002L;
 					}
+					break;
 				case 4:
 					if ("RIVERDALE".equals(gRoute.getRouteId())) {
 						return 4_001L;
 					}
+					break;
+				case 12:
+					if ("BUSINESS PARK 3".equals(gRoute.getRouteId())) {
+						return 12_003L;
+					}
+					break;
+				case 14:
+					if ("BUSINESS PARK 2".equals(gRoute.getRouteId())) {
+						return 14_002L;
+					}
+					break;
 				case 17:
 					return 17L;
 				case 19:
@@ -124,20 +138,21 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 					} else if ("CS-WEST".equals(gRoute.getRouteId())) {
 						return 61_002L;
 					}
+					break;
 				case 71:
 					if ("EXPRESS EAST".equals(gRoute.getRouteId())) {
 						return 71_001L;
 					} else if ("EXPRESS WEST".equals(gRoute.getRouteId())) {
 						return 71_002L;
 					}
+					break;
 				case 88:
 					return 88L;
 				case 99:
 					return 99L;
 				}
 			}
-			MTLog.logFatal("Unexpected route ID for %s!", gRoute);
-			return -1L;
+			throw new MTLog.Fatal("Unexpected route ID for %s!", gRoute.toStringPlus());
 
 		}
 		return super.getRouteId(gRoute);
@@ -154,22 +169,36 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 				} else if ("PITT".equals(gRoute.getRouteId())) {
 					return "1 PT";
 				}
+				break;
 			case 2:
 				if ("CUMBERLAND".equals(gRoute.getRouteId())) {
 					return "2 CB";
 				} else if ("SUNRISE".equals(gRoute.getRouteId())) {
 					return "2 SR";
 				}
+				break;
 			case 3:
 				if ("BROOKDALE".equals(gRoute.getRouteId())) {
 					return "3 BD";
 				} else if ("MONTREAL".equals(gRoute.getRouteId())) {
 					return "3 MT";
 				}
+				break;
 			case 4:
 				if ("RIVERDALE".equals(gRoute.getRouteId())) {
 					return "4 RV";
 				}
+				break;
+			case 12:
+				if ("BUSINESS PARK 3".equals(gRoute.getRouteId())) {
+					return "12 BP";
+				}
+				break;
+			case 14:
+				if ("BUSINESS PARK 2".equals(gRoute.getRouteId())) {
+					return "14 BP";
+				}
+				break;
 			case 17:
 				return "17 S3";
 			case 19:
@@ -180,20 +209,21 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 				} else if ("CS-WEST".equals(gRoute.getRouteId())) {
 					return "61 W";
 				}
+				break;
 			case 71:
 				if ("EXPRESS EAST".equals(gRoute.getRouteId())) {
 					return "71 E";
 				} else if ("EXPRESS WEST".equals(gRoute.getRouteId())) {
 					return "71 W";
 				}
+				break;
 			case 88:
 				return "88 CA";
 			case 99:
 				return "99 BP";
 			}
 		}
-		MTLog.logFatal("Unexpected route short name %s!", gRoute);
-		return null;
+		throw new MTLog.Fatal("Unexpected route short name %s!", gRoute.toStringPlus());
 	}
 
 	private static final Pattern STARTS_WITH_RSN = Pattern.compile("(^[0-9]+-)", Pattern.CASE_INSENSITIVE);
@@ -234,6 +264,7 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 			case 61: return "1C3E94"; // 61-CS
 			// @formatter:on
 			}
+			throw new MTLog.Fatal("Unexpected route color %s!", gRoute);
 		}
 		return super.getRouteColor(gRoute);
 	}
@@ -318,8 +349,7 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 				return true;
 			}
 		}
-		MTLog.logFatal("Unexpected trips to merge %s VS %s!", mTrip, mTripToMerge);
-		return false;
+		throw new MTLog.Fatal("Unexpected trips to merge %s VS %s!", mTrip, mTripToMerge);
 	}
 
 	private static final Pattern APARTMENTS = CleanUtils.cleanWords("apartments");
