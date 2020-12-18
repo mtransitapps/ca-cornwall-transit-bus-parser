@@ -119,6 +119,9 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 					}
 					break;
 				case 12:
+					if ("BUSINESS PARK 2".equals(gRoute.getRouteId())) {
+						return 12_002L;
+					}
 					if ("BUSINESS PARK 3".equals(gRoute.getRouteId())) {
 						return 12_003L;
 					}
@@ -130,6 +133,11 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 					break;
 				case 17:
 					return 17L;
+				case 18:
+					if ("BUSINESS PARK".equals(gRoute.getRouteId())) {
+						return 18_000L;
+					}
+					break;
 				case 19:
 					return 19L;
 				case 61:
@@ -152,7 +160,7 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 					return 99L;
 				}
 			}
-			throw new MTLog.Fatal("Unexpected route ID for %s!", gRoute.toStringPlus());
+			throw new MTLog.Fatal("%s: Unexpected route ID for %s!", gRoute.getRouteShortName(), gRoute.toStringPlus());
 
 		}
 		return super.getRouteId(gRoute);
@@ -190,8 +198,11 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 				}
 				break;
 			case 12:
+				if ("BUSINESS PARK 2".equals(gRoute.getRouteId())) {
+					return "12 BP2";
+				}
 				if ("BUSINESS PARK 3".equals(gRoute.getRouteId())) {
-					return "12 BP";
+					return "12 BP3";
 				}
 				break;
 			case 14:
@@ -201,6 +212,11 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 				break;
 			case 17:
 				return "17 S3";
+			case 18:
+				if ("BUSINESS PARK".equals(gRoute.getRouteId())) {
+					return "18 BP";
+				}
+				break;
 			case 19:
 				return "19 BP";
 			case 61:
