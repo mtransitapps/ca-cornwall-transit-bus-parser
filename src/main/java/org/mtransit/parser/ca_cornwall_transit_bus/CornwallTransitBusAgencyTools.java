@@ -1,12 +1,14 @@
 package org.mtransit.parser.ca_cornwall_transit_bus;
 
-import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.mtransit.parser.CleanUtils;
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.MTLog;
 import org.mtransit.parser.Pair;
 import org.mtransit.parser.SplitUtils;
 import org.mtransit.parser.SplitUtils.RouteTripSpec;
+import org.mtransit.parser.StringUtils;
 import org.mtransit.parser.Utils;
 import org.mtransit.parser.gtfs.data.GCalendar;
 import org.mtransit.parser.gtfs.data.GCalendarDate;
@@ -20,18 +22,20 @@ import org.mtransit.parser.mt.data.MRoute;
 import org.mtransit.parser.mt.data.MTrip;
 import org.mtransit.parser.mt.data.MTripStop;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+import static org.mtransit.parser.StringUtils.EMPTY;
+
 // http://metrolinx.tmix.se/gtfs/gtfs-cornwall.zip
 public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 
-	public static void main(String[] args) {
+	public static void main(@Nullable String[] args) {
 		if (args == null || args.length == 0) {
 			args = new String[3];
 			args[0] = "input/gtfs.zip";
@@ -41,116 +45,120 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 		new CornwallTransitBusAgencyTools().start(args);
 	}
 
-	private HashSet<String> serviceIds;
+	@Nullable
+	private HashSet<Integer> serviceIdInts;
 
 	@Override
-	public void start(String[] args) {
+	public void start(@NotNull String[] args) {
 		MTLog.log("Generating Cornwall Transit bus data...");
 		long start = System.currentTimeMillis();
-		this.serviceIds = extractUsefulServiceIds(args, this, true);
+		this.serviceIdInts = extractUsefulServiceIdInts(args, this, true);
 		super.start(args);
 		MTLog.log("Generating Cornwall Transit bus data... DONE in %s.", Utils.getPrettyDuration(System.currentTimeMillis() - start));
 	}
 
 	@Override
 	public boolean excludingAll() {
-		return this.serviceIds != null && this.serviceIds.isEmpty();
+		return this.serviceIdInts != null && this.serviceIdInts.isEmpty();
 	}
 
 	@Override
-	public boolean excludeCalendar(GCalendar gCalendar) {
-		if (this.serviceIds != null) {
-			return excludeUselessCalendar(gCalendar, this.serviceIds);
+	public boolean excludeCalendar(@NotNull GCalendar gCalendar) {
+		if (this.serviceIdInts != null) {
+			return excludeUselessCalendarInt(gCalendar, this.serviceIdInts);
 		}
 		return super.excludeCalendar(gCalendar);
 	}
 
 	@Override
-	public boolean excludeCalendarDate(GCalendarDate gCalendarDates) {
-		if (this.serviceIds != null) {
-			return excludeUselessCalendarDate(gCalendarDates, this.serviceIds);
+	public boolean excludeCalendarDate(@NotNull GCalendarDate gCalendarDates) {
+		if (this.serviceIdInts != null) {
+			return excludeUselessCalendarDateInt(gCalendarDates, this.serviceIdInts);
 		}
 		return super.excludeCalendarDate(gCalendarDates);
 	}
 
 	@Override
-	public boolean excludeTrip(GTrip gTrip) {
-		if (this.serviceIds != null) {
-			return excludeUselessTrip(gTrip, this.serviceIds);
+	public boolean excludeTrip(@NotNull GTrip gTrip) {
+		if (this.serviceIdInts != null) {
+			return excludeUselessTripInt(gTrip, this.serviceIdInts);
 		}
 		return super.excludeTrip(gTrip);
 	}
 
+	@NotNull
 	@Override
 	public Integer getAgencyRouteType() {
 		return MAgency.ROUTE_TYPE_BUS;
 	}
 
 	@Override
-	public long getRouteId(GRoute gRoute) {
-		if (!Utils.isDigitsOnly(gRoute.getRouteId())) {
+	public long getRouteId(@NotNull GRoute gRoute) {
+		//noinspection deprecation
+		final String routeId = gRoute.getRouteId();
+		if (!Utils.isDigitsOnly(routeId)) {
 			if (Utils.isDigitsOnly(gRoute.getRouteShortName())) {
 				int rsn = Integer.parseInt(gRoute.getRouteShortName());
 				switch (rsn) {
 				case 1:
-					if ("MCCONNELL".equals(gRoute.getRouteId())) {
+					if ("MCCONNELL".equals(routeId)) {
 						return 1_001L;
-					} else if ("PITT".equals(gRoute.getRouteId())) {
+					} else if ("PITT".equals(routeId)) {
 						return 1_002L;
 					}
 					break;
 				case 2:
-					if ("CUMBERLAND".equals(gRoute.getRouteId())) {
+					if ("CUMBERLAND".equals(routeId)) {
 						return 2_001L;
-					} else if ("SUNRISE".equals(gRoute.getRouteId())) {
+					} else if ("SUNRISE".equals(routeId)) {
 						return 2_002L;
 					}
 					break;
 				case 3:
-					if ("BROOKDALE".equals(gRoute.getRouteId())) {
+					if ("BROOKDALE".equals(routeId)) {
 						return 3_001L;
-					} else if ("MONTREAL".equals(gRoute.getRouteId())) {
+					} else if ("MONTREAL".equals(routeId)) {
 						return 3_002L;
 					}
 					break;
 				case 4:
-					if ("RIVERDALE".equals(gRoute.getRouteId())) {
+					if ("RIVERDALE".equals(routeId)) {
 						return 4_001L;
 					}
 					break;
 				case 12:
-					if ("BUSINESS PARK 2".equals(gRoute.getRouteId())) {
+					if ("BUSINESS PARK 2".equals(routeId)) {
 						return 12_002L;
 					}
-					if ("BUSINESS PARK 3".equals(gRoute.getRouteId())) {
+					if ("BUSINESS PARK 3".equals(routeId)) {
 						return 12_003L;
 					}
 					break;
 				case 14:
-					if ("BUSINESS PARK 2".equals(gRoute.getRouteId())) {
+					if ("BUSINESS PARK 2".equals(routeId)) {
 						return 14_002L;
 					}
 					break;
 				case 17:
 					return 17L;
 				case 18:
-					if ("BUSINESS PARK".equals(gRoute.getRouteId())) {
+					if ("BUSINESS PARK".equals(routeId)) {
 						return 18_000L;
 					}
 					break;
 				case 19:
 					return 19L;
 				case 61:
-					if ("CS-EAST".equals(gRoute.getRouteId())) {
+					if ("CS-EAST".equals(routeId)) {
 						return 61_001L;
-					} else if ("CS-WEST".equals(gRoute.getRouteId())) {
+					} else if ("CS-WEST".equals(routeId)) {
 						return 61_002L;
 					}
 					break;
 				case 71:
-					if ("EXPRESS EAST".equals(gRoute.getRouteId())) {
+					if ("EXPRESS EAST".equals(routeId)) {
 						return 71_001L;
-					} else if ("EXPRESS WEST".equals(gRoute.getRouteId())) {
+					} else if ("EXPRESS WEST".equals(routeId)) {
 						return 71_002L;
 					}
 					break;
@@ -166,70 +174,74 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 		return super.getRouteId(gRoute);
 	}
 
+	@Nullable
 	@Override
-	public String getRouteShortName(GRoute gRoute) {
-		if (Utils.isDigitsOnly(gRoute.getRouteShortName())) {
-			int rsn = Integer.parseInt(gRoute.getRouteShortName());
+	public String getRouteShortName(@NotNull GRoute gRoute) {
+		final String rsnS = gRoute.getRouteShortName();
+		if (Utils.isDigitsOnly(rsnS)) {
+			int rsn = Integer.parseInt(rsnS);
+			//noinspection deprecation
+			final String routeId = gRoute.getRouteId();
 			switch (rsn) {
 			case 1:
-				if ("MCCONNELL".equals(gRoute.getRouteId())) {
+				if ("MCCONNELL".equals(routeId)) {
 					return "1 MC";
-				} else if ("PITT".equals(gRoute.getRouteId())) {
+				} else if ("PITT".equals(routeId)) {
 					return "1 PT";
 				}
 				break;
 			case 2:
-				if ("CUMBERLAND".equals(gRoute.getRouteId())) {
+				if ("CUMBERLAND".equals(routeId)) {
 					return "2 CB";
-				} else if ("SUNRISE".equals(gRoute.getRouteId())) {
+				} else if ("SUNRISE".equals(routeId)) {
 					return "2 SR";
 				}
 				break;
 			case 3:
-				if ("BROOKDALE".equals(gRoute.getRouteId())) {
+				if ("BROOKDALE".equals(routeId)) {
 					return "3 BD";
-				} else if ("MONTREAL".equals(gRoute.getRouteId())) {
+				} else if ("MONTREAL".equals(routeId)) {
 					return "3 MT";
 				}
 				break;
 			case 4:
-				if ("RIVERDALE".equals(gRoute.getRouteId())) {
+				if ("RIVERDALE".equals(routeId)) {
 					return "4 RV";
 				}
 				break;
 			case 12:
-				if ("BUSINESS PARK 2".equals(gRoute.getRouteId())) {
+				if ("BUSINESS PARK 2".equals(routeId)) {
 					return "12 BP2";
 				}
-				if ("BUSINESS PARK 3".equals(gRoute.getRouteId())) {
+				if ("BUSINESS PARK 3".equals(routeId)) {
 					return "12 BP3";
 				}
 				break;
 			case 14:
-				if ("BUSINESS PARK 2".equals(gRoute.getRouteId())) {
+				if ("BUSINESS PARK 2".equals(routeId)) {
 					return "14 BP";
 				}
 				break;
 			case 17:
 				return "17 S3";
 			case 18:
-				if ("BUSINESS PARK".equals(gRoute.getRouteId())) {
+				if ("BUSINESS PARK".equals(routeId)) {
 					return "18 BP";
 				}
 				break;
 			case 19:
 				return "19 BP";
 			case 61:
-				if ("CS-EAST".equals(gRoute.getRouteId())) {
+				if ("CS-EAST".equals(routeId)) {
 					return "61 E";
-				} else if ("CS-WEST".equals(gRoute.getRouteId())) {
+				} else if ("CS-WEST".equals(routeId)) {
 					return "61 W";
 				}
 				break;
 			case 71:
-				if ("EXPRESS EAST".equals(gRoute.getRouteId())) {
+				if ("EXPRESS EAST".equals(routeId)) {
 					return "71 E";
-				} else if ("EXPRESS WEST".equals(gRoute.getRouteId())) {
+				} else if ("EXPRESS WEST".equals(routeId)) {
 					return "71 W";
 				}
 				break;
@@ -244,12 +256,13 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 
 	private static final Pattern STARTS_WITH_RSN = Pattern.compile("(^[0-9]+-)", Pattern.CASE_INSENSITIVE);
 
+	@NotNull
 	@Override
-	public String getRouteLongName(GRoute gRoute) {
-		String routeLongName = gRoute.getRouteLongName();
-		routeLongName = routeLongName.toLowerCase(Locale.ENGLISH);
-		routeLongName = MCCONNELL.matcher(routeLongName).replaceAll(MCCONNELL_REPLACEMENT);
-		routeLongName = STARTS_WITH_RSN.matcher(routeLongName).replaceAll(StringUtils.EMPTY);
+	public String getRouteLongName(@NotNull GRoute gRoute) {
+		String routeLongName = gRoute.getRouteLongNameOrDefault();
+		routeLongName = CleanUtils.toLowerCaseUpperCaseWords(Locale.ENGLISH, routeLongName);
+		routeLongName = CleanUtils.fixMcXCase(routeLongName);
+		routeLongName = STARTS_WITH_RSN.matcher(routeLongName).replaceAll(EMPTY);
 		return CleanUtils.cleanLabel(routeLongName);
 	}
 
@@ -257,6 +270,7 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 
 	private static final String AGENCY_COLOR = AGENCY_COLOR_BLUE;
 
+	@NotNull
 	@Override
 	public String getAgencyColor() {
 		return AGENCY_COLOR;
@@ -264,8 +278,9 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 
 	// https://www.cornwall.ca/en/live-here/transit-routes.aspx
 	// https://www.cornwall.ca/en/live-here/resources/Transit/Transit-MAP-Nov-2019.pdf
+	@Nullable
 	@Override
-	public String getRouteColor(GRoute gRoute) {
+	public String getRouteColor(@NotNull GRoute gRoute) {
 		if (StringUtils.isEmpty(gRoute.getRouteColor())) {
 			int routeId = (int) getRouteId(gRoute);
 			switch (routeId) {
@@ -285,7 +300,7 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 		return super.getRouteColor(gRoute);
 	}
 
-	private static HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
+	private static final HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
 
 	static {
 		//noinspection UnnecessaryLocalVariable
@@ -294,24 +309,26 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 	}
 
 	@Override
-	public int compareEarly(long routeId, List<MTripStop> list1, List<MTripStop> list2, MTripStop ts1, MTripStop ts2, GStop ts1GStop, GStop ts2GStop) {
+	public int compareEarly(long routeId, @NotNull List<MTripStop> list1, @NotNull List<MTripStop> list2, @NotNull MTripStop ts1, @NotNull MTripStop ts2, @NotNull GStop ts1GStop, @NotNull GStop ts2GStop) {
 		if (ALL_ROUTE_TRIPS2.containsKey(routeId)) {
 			return ALL_ROUTE_TRIPS2.get(routeId).compare(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop, this);
 		}
 		return super.compareEarly(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop);
 	}
 
+	@NotNull
 	@Override
-	public ArrayList<MTrip> splitTrip(MRoute mRoute, GTrip gTrip, GSpec gtfs) {
+	public ArrayList<MTrip> splitTrip(@NotNull MRoute mRoute, @Nullable GTrip gTrip, @NotNull GSpec gtfs) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return ALL_ROUTE_TRIPS2.get(mRoute.getId()).getAllTrips();
 		}
 		return super.splitTrip(mRoute, gTrip, gtfs);
 	}
 
+	@NotNull
 	@Override
-	public Pair<Long[], Integer[]> splitTripStop(MRoute mRoute, GTrip gTrip, GTripStop
-			gTripStop, ArrayList<MTrip> splitTrips, GSpec routeGTFS) {
+	public Pair<Long[], Integer[]> splitTripStop(@NotNull MRoute mRoute, @NotNull GTrip gTrip, @NotNull GTripStop
+			gTripStop, @NotNull ArrayList<MTrip> splitTrips, @NotNull GSpec routeGTFS) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, ALL_ROUTE_TRIPS2.get(mRoute.getId()), this);
 		}
@@ -319,7 +336,7 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 	}
 
 	@Override
-	public void setTripHeadsign(MRoute mRoute, MTrip mTrip, GTrip gTrip, GSpec gtfs) {
+	public void setTripHeadsign(@NotNull MRoute mRoute, @NotNull MTrip mTrip, @NotNull GTrip gTrip, @NotNull GSpec gtfs) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return; // split
 		}
@@ -332,28 +349,23 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 	private static final Pattern COMMUNITY_SERVICE_ = CleanUtils.cleanWords("community service");
 	private static final String COMMUNITY_SERVICE_REPLACEMENT = CleanUtils.cleanWordsReplacement("CS");
 
-	private static final Pattern MCCONNELL = CleanUtils.cleanWords("mcconnell");
-	private static final String MCCONNELL_REPLACEMENT = CleanUtils.cleanWordsReplacement("McConnell");
-
+	@NotNull
 	@Override
-	public String cleanTripHeadsign(String tripHeadsign) {
-		if (Utils.isUppercaseOnly(tripHeadsign, true, true)) {
-			tripHeadsign = tripHeadsign.toLowerCase(Locale.ENGLISH);
-		}
-		tripHeadsign = STARTS_WITH_CORNWALL.matcher(tripHeadsign).replaceAll(StringUtils.EMPTY);
+	public String cleanTripHeadsign(@NotNull String tripHeadsign) {
+		tripHeadsign = CleanUtils.toLowerCaseUpperCaseWords(Locale.ENGLISH, tripHeadsign);
+		tripHeadsign = STARTS_WITH_CORNWALL.matcher(tripHeadsign).replaceAll(EMPTY);
 		tripHeadsign = COMMUNITY_SERVICE_.matcher(tripHeadsign).replaceAll(COMMUNITY_SERVICE_REPLACEMENT);
-		tripHeadsign = MCCONNELL.matcher(tripHeadsign).replaceAll(MCCONNELL_REPLACEMENT);
+		tripHeadsign = CleanUtils.fixMcXCase(tripHeadsign);
 		tripHeadsign = CleanUtils.CLEAN_AND.matcher(tripHeadsign).replaceAll(CleanUtils.CLEAN_AND_REPLACEMENT);
 		tripHeadsign = CleanUtils.CLEAN_AT.matcher(tripHeadsign).replaceAll(CleanUtils.CLEAN_AT_REPLACEMENT);
 		tripHeadsign = CleanUtils.keepToAndRemoveVia(tripHeadsign);
-		tripHeadsign = CleanUtils.removePoints(tripHeadsign);
 		tripHeadsign = CleanUtils.cleanNumbers(tripHeadsign);
 		tripHeadsign = CleanUtils.cleanStreetTypes(tripHeadsign);
 		return CleanUtils.cleanLabel(tripHeadsign);
 	}
 
 	@Override
-	public boolean mergeHeadsign(MTrip mTrip, MTrip mTripToMerge) {
+	public boolean mergeHeadsign(@NotNull MTrip mTrip, @NotNull MTrip mTripToMerge) {
 		List<String> headsignsValues = Arrays.asList(mTrip.getHeadsignValue(), mTripToMerge.getHeadsignValue());
 		if (mTrip.getRouteId() == 88L) {
 			if (Arrays.asList( //
@@ -368,16 +380,13 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 		throw new MTLog.Fatal("Unexpected trips to merge %s VS %s!", mTrip, mTripToMerge);
 	}
 
-	private static final Pattern APARTMENTS = CleanUtils.cleanWords("apartments");
-	private static final String APARTMENTS_REPLACEMENT = CleanUtils.cleanWordsReplacement("Apts");
-
+	@NotNull
 	@Override
-	public String cleanStopName(String gStopName) {
-		gStopName = APARTMENTS.matcher(gStopName).replaceAll(APARTMENTS_REPLACEMENT);
+	public String cleanStopName(@NotNull String gStopName) {
 		gStopName = CleanUtils.CLEAN_AND.matcher(gStopName).replaceAll(CleanUtils.CLEAN_AND_REPLACEMENT);
 		gStopName = CleanUtils.CLEAN_AT.matcher(gStopName).replaceAll(CleanUtils.CLEAN_AT_REPLACEMENT);
 		gStopName = CleanUtils.SAINT.matcher(gStopName).replaceAll(CleanUtils.SAINT_REPLACEMENT);
-		gStopName = CleanUtils.removePoints(gStopName);
+		gStopName = CleanUtils.fixMcXCase(gStopName);
 		gStopName = CleanUtils.cleanNumbers(gStopName);
 		gStopName = CleanUtils.cleanStreetTypes(gStopName);
 		return CleanUtils.cleanLabel(gStopName);
