@@ -1,79 +1,35 @@
 package org.mtransit.parser.ca_cornwall_transit_bus;
 
+import static org.mtransit.commons.StringUtils.EMPTY;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mtransit.parser.CleanUtils;
+import org.mtransit.commons.CharUtils;
+import org.mtransit.commons.CleanUtils;
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.MTLog;
-import org.mtransit.parser.StringUtils;
-import org.mtransit.parser.Utils;
-import org.mtransit.parser.gtfs.data.GCalendar;
-import org.mtransit.parser.gtfs.data.GCalendarDate;
 import org.mtransit.parser.gtfs.data.GRoute;
-import org.mtransit.parser.gtfs.data.GSpec;
-import org.mtransit.parser.gtfs.data.GTrip;
 import org.mtransit.parser.mt.data.MAgency;
-import org.mtransit.parser.mt.data.MRoute;
-import org.mtransit.parser.mt.data.MTrip;
 
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.regex.Pattern;
-
-import static org.mtransit.parser.StringUtils.EMPTY;
 
 // http://metrolinx.tmix.se/gtfs/gtfs-cornwall.zip
 public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 
-	public static void main(@Nullable String[] args) {
-		if (args == null || args.length == 0) {
-			args = new String[3];
-			args[0] = "input/gtfs.zip";
-			args[1] = "../../mtransitapps/ca-cornwall-transit-bus-android/res/raw/";
-			args[2] = ""; // files-prefix
-		}
+	public static void main(@NotNull String[] args) {
 		new CornwallTransitBusAgencyTools().start(args);
 	}
 
-	@Nullable
-	private HashSet<Integer> serviceIdInts;
-
 	@Override
-	public void start(@NotNull String[] args) {
-		MTLog.log("Generating Cornwall Transit bus data...");
-		long start = System.currentTimeMillis();
-		this.serviceIdInts = extractUsefulServiceIdInts(args, this, true);
-		super.start(args);
-		MTLog.log("Generating Cornwall Transit bus data... DONE in %s.", Utils.getPrettyDuration(System.currentTimeMillis() - start));
+	public boolean defaultExcludeEnabled() {
+		return true;
 	}
 
+	@NotNull
 	@Override
-	public boolean excludingAll() {
-		return this.serviceIdInts != null && this.serviceIdInts.isEmpty();
-	}
-
-	@Override
-	public boolean excludeCalendar(@NotNull GCalendar gCalendar) {
-		if (this.serviceIdInts != null) {
-			return excludeUselessCalendarInt(gCalendar, this.serviceIdInts);
-		}
-		return super.excludeCalendar(gCalendar);
-	}
-
-	@Override
-	public boolean excludeCalendarDate(@NotNull GCalendarDate gCalendarDates) {
-		if (this.serviceIdInts != null) {
-			return excludeUselessCalendarDateInt(gCalendarDates, this.serviceIdInts);
-		}
-		return super.excludeCalendarDate(gCalendarDates);
-	}
-
-	@Override
-	public boolean excludeTrip(@NotNull GTrip gTrip) {
-		if (this.serviceIdInts != null) {
-			return excludeUselessTripInt(gTrip, this.serviceIdInts);
-		}
-		return super.excludeTrip(gTrip);
+	public String getAgencyName() {
+		return "Cornwall Transit";
 	}
 
 	@NotNull
@@ -86,9 +42,10 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 	public long getRouteId(@NotNull GRoute gRoute) {
 		//noinspection deprecation
 		final String routeId = gRoute.getRouteId();
-		if (!Utils.isDigitsOnly(routeId)) {
-			if (Utils.isDigitsOnly(gRoute.getRouteShortName())) {
-				int rsn = Integer.parseInt(gRoute.getRouteShortName());
+		if (!CharUtils.isDigitsOnly(routeId)) {
+			final String rsnS = gRoute.getRouteShortName();
+			if (CharUtils.isDigitsOnly(rsnS)) {
+				final int rsn = Integer.parseInt(rsnS);
 				switch (rsn) {
 				case 1:
 					if ("MCCONNELL".equals(routeId)) {
@@ -138,6 +95,11 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 					break;
 				case 19:
 					return 19L;
+				case 20:
+					if ("BUSINESS PARK 2".equals(routeId)) {
+						return 20_002L;
+					}
+					break;
 				case 61:
 					if ("CS-EAST".equals(routeId)) {
 						return 61_001L;
@@ -158,7 +120,7 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 					return 99L;
 				}
 			}
-			throw new MTLog.Fatal("%s: Unexpected route ID for %s!", gRoute.getRouteShortName(), gRoute.toStringPlus());
+			throw new MTLog.Fatal("%s: Unexpected route ID for %s!", rsnS, gRoute.toStringPlus());
 
 		}
 		return super.getRouteId(gRoute);
@@ -168,7 +130,7 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 	@Override
 	public String getRouteShortName(@NotNull GRoute gRoute) {
 		final String rsnS = gRoute.getRouteShortName();
-		if (Utils.isDigitsOnly(rsnS)) {
+		if (CharUtils.isDigitsOnly(rsnS)) {
 			int rsn = Integer.parseInt(rsnS);
 			//noinspection deprecation
 			final String routeId = gRoute.getRouteId();
@@ -221,6 +183,8 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 				break;
 			case 19:
 				return "19 BP";
+			case 20:
+				return "20 BP";
 			case 61:
 				if ("CS-EAST".equals(routeId)) {
 					return "61 E";
@@ -248,12 +212,16 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@NotNull
 	@Override
-	public String getRouteLongName(@NotNull GRoute gRoute) {
-		String routeLongName = gRoute.getRouteLongNameOrDefault();
+	public String cleanRouteLongName(@NotNull String routeLongName) {
 		routeLongName = CleanUtils.toLowerCaseUpperCaseWords(Locale.ENGLISH, routeLongName);
 		routeLongName = CleanUtils.fixMcXCase(routeLongName);
 		routeLongName = STARTS_WITH_RSN.matcher(routeLongName).replaceAll(EMPTY);
 		return CleanUtils.cleanLabel(routeLongName);
+	}
+
+	@Override
+	public boolean defaultAgencyColorEnabled() {
+		return true;
 	}
 
 	private static final String AGENCY_COLOR_BLUE = "0072BC"; // BLUE (from PDF map)
@@ -264,39 +232,6 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 	@Override
 	public String getAgencyColor() {
 		return AGENCY_COLOR;
-	}
-
-	// https://www.cornwall.ca/en/live-here/transit-routes.aspx
-	// https://www.cornwall.ca/en/live-here/resources/Transit/Transit-MAP-Nov-2019.pdf
-	@Nullable
-	@Override
-	public String getRouteColor(@NotNull GRoute gRoute) {
-		if (StringUtils.isEmpty(gRoute.getRouteColor())) {
-			int routeId = (int) getRouteId(gRoute);
-			switch (routeId) {
-			// @formatter:off
-			case 1001: return "8DC63F"; // 1-MCCONNELL
-			case 1002: return "F78F1E"; // 1-PITT
-			case 2001: return "FFD200"; // 2-CUMBERLAND
-			case 2002: return "0072BC"; // 2-SUNRISE
-			case 3001: return "00AEEF"; // 3-BROOKDALE
-			case 3002: return "EB4498"; // 3-MONTREAL
-			case 4001: return "7D4199"; // 4-RIVERDALE
-			case 61: return "1C3E94"; // 61-CS
-			// @formatter:on
-			}
-			throw new MTLog.Fatal("Unexpected route color %s!", gRoute);
-		}
-		return super.getRouteColor(gRoute);
-	}
-
-	@Override
-	public void setTripHeadsign(@NotNull MRoute mRoute, @NotNull MTrip mTrip, @NotNull GTrip gTrip, @NotNull GSpec gtfs) {
-		final int directionId = gTrip.getDirectionId() == null ? 0 : gTrip.getDirectionId();
-		mTrip.setHeadsignString(
-				cleanTripHeadsign(gTrip.getTripHeadsign()),
-				directionId
-		);
 	}
 
 	@Override
@@ -322,11 +257,6 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 		tripHeadsign = CleanUtils.cleanNumbers(tripHeadsign);
 		tripHeadsign = CleanUtils.cleanStreetTypes(tripHeadsign);
 		return CleanUtils.cleanLabel(tripHeadsign);
-	}
-
-	@Override
-	public boolean mergeHeadsign(@NotNull MTrip mTrip, @NotNull MTrip mTripToMerge) {
-		throw new MTLog.Fatal("Unexpected trips to merge %s VS %s!", mTrip, mTripToMerge);
 	}
 
 	@NotNull
