@@ -39,6 +39,16 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 	}
 
 	@Override
+	public boolean defaultRouteIdEnabled() {
+		return false; // too complex
+	}
+
+	@Override
+	public boolean useRouteShortNameForRouteId() {
+		return false; // too complex
+	}
+
+	@Override
 	public long getRouteId(@NotNull GRoute gRoute) {
 		//noinspection deprecation
 		final String routeId = gRoute.getRouteId();
