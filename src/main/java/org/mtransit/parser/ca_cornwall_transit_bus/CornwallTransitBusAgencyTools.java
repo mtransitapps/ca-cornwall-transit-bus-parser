@@ -83,6 +83,33 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 						return 4_001L;
 					}
 					break;
+				case 5:
+					if ("MCCONNELL".equals(routeId)) {
+						return 5_001L;
+					}
+					break;
+				case 6:
+					if ("CUMBERLAND".equals(routeId)) {
+						return 6_001L;
+					}
+					break;
+				case 7:
+					if ("MONTREAL".equals(routeId)) {
+						return 7_001L;
+					}
+					break;
+				case 8:
+					if ("BUSINESS PARK".equals(routeId)
+						|| "BUSINESS PARK 8".equals(routeId)) {
+						return 8_001L;
+					}
+					break;
+				case 9:
+					if ("BUSINESS PARK".equals(routeId)
+						|| "BUSINESS PARK 9".equals(routeId)) {
+						return 9_001L;
+					}
+					break;
 				case 12:
 					if ("BUSINESS PARK 2".equals(routeId)) {
 						return 12_002L;
@@ -169,6 +196,33 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 			case 4:
 				if ("RIVERDALE".equals(routeId)) {
 					return "4 RV";
+				}
+				break;
+			case 5:
+				if ("MCCONNELL".equals(routeId)) {
+					return "5 MC";
+				}
+				break;
+			case 6:
+				if ("CUMBERLAND".equals(routeId)) {
+					return "4 CB";
+				}
+				break;
+			case 7:
+				if ("MONTREAL".equals(routeId)) {
+					return "7 MT";
+				}
+				break;
+			case 8:
+				if ("BUSINESS PARK".equals(routeId)
+					|| "BUSINESS PARK 8".equals(routeId)) {
+					return "8 BP";
+				}
+				break;
+			case 9:
+				if ("BUSINESS PARK".equals(routeId)
+					|| "BUSINESS PARK 9".equals(routeId)) {
+					return "9 BP";
 				}
 				break;
 			case 12:
