@@ -3,7 +3,6 @@ package org.mtransit.parser.ca_cornwall_transit_bus;
 import static org.mtransit.commons.StringUtils.EMPTY;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.mtransit.commons.CharUtils;
 import org.mtransit.commons.CleanUtils;
 import org.mtransit.parser.DefaultAgencyTools;
@@ -14,7 +13,6 @@ import org.mtransit.parser.mt.data.MAgency;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-// http://metrolinx.tmix.se/gtfs/gtfs-cornwall.zip
 public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 
 	public static void main(@NotNull String[] args) {
@@ -100,13 +98,13 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 					break;
 				case 8:
 					if ("BUSINESS PARK".equals(routeId)
-						|| "BUSINESS PARK 8".equals(routeId)) {
+							|| "BUSINESS PARK 8".equals(routeId)) {
 						return 8_001L;
 					}
 					break;
 				case 9:
 					if ("BUSINESS PARK".equals(routeId)
-						|| "BUSINESS PARK 9".equals(routeId)) {
+							|| "BUSINESS PARK 9".equals(routeId)) {
 						return 9_001L;
 					}
 					break;
@@ -157,20 +155,27 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 					return 99L;
 				}
 			}
+			if (routeId.startsWith("CANADA DAY")) {
+				if ("CANADA DAY 1".equals(routeId)) {
+					return 917_001L;
+				} else if ("CANADA DAY 2".equals(routeId)) {
+					return 917_002L;
+				}
+			}
 			throw new MTLog.Fatal("%s: Unexpected route ID for %s!", rsnS, gRoute.toStringPlus());
 
 		}
 		return super.getRouteId(gRoute);
 	}
 
-	@Nullable
+	@NotNull
 	@Override
 	public String getRouteShortName(@NotNull GRoute gRoute) {
 		final String rsnS = gRoute.getRouteShortName();
+		//noinspection deprecation
+		final String routeId = gRoute.getRouteId();
 		if (CharUtils.isDigitsOnly(rsnS)) {
 			int rsn = Integer.parseInt(rsnS);
-			//noinspection deprecation
-			final String routeId = gRoute.getRouteId();
 			switch (rsn) {
 			case 1:
 				if ("MCCONNELL".equals(routeId)) {
@@ -215,13 +220,13 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 				break;
 			case 8:
 				if ("BUSINESS PARK".equals(routeId)
-					|| "BUSINESS PARK 8".equals(routeId)) {
+						|| "BUSINESS PARK 8".equals(routeId)) {
 					return "8 BP";
 				}
 				break;
 			case 9:
 				if ("BUSINESS PARK".equals(routeId)
-					|| "BUSINESS PARK 9".equals(routeId)) {
+						|| "BUSINESS PARK 9".equals(routeId)) {
 					return "9 BP";
 				}
 				break;
@@ -267,6 +272,13 @@ public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 				return "88 CA";
 			case 99:
 				return "99 BP";
+			}
+		}
+		if (routeId.startsWith("CANADA DAY")) {
+			if ("CANADA DAY 1".equals(routeId)) {
+				return "CA 1";
+			} else if ("CANADA DAY 2".equals(routeId)) {
+				return "CA 2";
 			}
 		}
 		throw new MTLog.Fatal("Unexpected route short name %s!", gRoute.toStringPlus());
