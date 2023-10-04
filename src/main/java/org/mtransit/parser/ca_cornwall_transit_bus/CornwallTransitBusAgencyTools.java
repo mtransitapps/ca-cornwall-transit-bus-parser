@@ -13,6 +13,8 @@ import org.mtransit.parser.mt.data.MAgency;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+// [OLD] http://maps.cornwall.ca/
+// https://www.cornwall.ca/en/city-hall/open-data.aspx
 public class CornwallTransitBusAgencyTools extends DefaultAgencyTools {
 
 	public static void main(@NotNull String[] args) {
